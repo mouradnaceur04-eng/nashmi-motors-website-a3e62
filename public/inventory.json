@@ -1,6 +1,6 @@
 {
-  "updated": "2026-04-21T21:33:06Z",
-  "count": 22,
+  "updated": "2026-04-22T14:48:28Z",
+  "count": 23,
   "vehicles": [
     {
       "vin": "1FAFP55284A197003",
@@ -17,7 +17,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/ford/taurus/tw3/",
-      "carfax": null
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/mnlCZUalZdfgiWI8Wd1izEYp19Rumrq0OH3Ij6FpDSJZScZvyT1hjKYJbk4HGxQHhUMT01JEuhPbAeHnW4HOg124ws9KxpojhEI",
+      "carfaxBadge": null
     },
     {
       "vin": "1FMYU03152KD52361",
@@ -34,7 +35,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/ford/escape/a1033/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/MOa9z0iTa64nkDNsN-VnMKdY3qRUq0b1F-iB9YyeWe--6i1qqRDrBDoxztVpDXfKdce8u9USpRtYqQ2yVte3iajX3vGUZSDLer0"
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/oo9mGf9QMaGYBakD98unToTSbh4lTxKzQsjkk9Cczkk28paP1KVRJBbOHp8Hj7NJICo6XkVRB47GdVrcLN72XgtVE3ZGAQBL5dw",
+      "carfaxBadge": null
     },
     {
       "vin": "2G1WF5E37C1298427",
@@ -51,7 +53,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/chevrolet/impala/a1046/",
-      "carfax": null
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/obMIxPqwX5tBwlwcAEtBPreNEsKJWxRq-2-snPHtx6mqirXCGLAeQmieJZU9-_K0PZiqSR9Z4t9Hj9tcKNLkjRJMSv8IYxQrxkQ",
+      "carfaxBadge": null
     },
     {
       "vin": "JN8AS5MV7CW394605",
@@ -68,7 +71,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/nissan/rogue/a1038/",
-      "carfax": null
+      "carfax": null,
+      "carfaxBadge": null
     },
     {
       "vin": "5XXGM4A74DG145701",
@@ -85,7 +89,8 @@
       "img": "202604-b67a2027fd0541a2b950f2e5e20d9b72",
       "imgUrl": "https://imagescf.dealercenter.net/640/480/202604-b67a2027fd0541a2b950f2e5e20d9b72.jpg",
       "url": "https://www.nashmimotors.com/inventory/kia/optima/a1034/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/-DJDP7tczx8kUU3gT_oUKKEngYGUxgOYZWghTN2CA_u3MMiCdkHhwLhXSPeAD1d6N3DtaK5ufD_gw32awNItx2UeI_wCi7kly04"
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/vbTdaTG07HL55FnhOxWlFMirqt9NhCwSkSaxO20ZBExGAjwyIeQrnfonKHEwkCrzRK4pV29emtw1mXGVAa752pnodwUzmNmuHWE",
+      "carfaxBadge": "Good Value"
     },
     {
       "vin": "2G1WB5E39E1116158",
@@ -102,7 +107,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/chevrolet/impala-limited/a1045/",
-      "carfax": null
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/8vLhifi4ZODxUb7QiOuIJnct1BOrfP_lhyecdl8gxWrNJJgWVNGh34bKw6r1vMp5oL6ivSr7HboK8an33grCGEVXWQ02ricMUrw",
+      "carfaxBadge": null
     },
     {
       "vin": "3FADP4BJ2KM108166",
@@ -112,14 +118,15 @@
       "model": "FIESTA",
       "type": "sedan",
       "price": 6995,
-      "sale": null,
+      "sale": 6495,
       "miles": 90319,
       "drive": "FWD",
       "fuel": "Gasoline",
       "img": "202604-039a484af9f5493d9a9d5c051585aa6f",
       "imgUrl": "https://imagescf.dealercenter.net/640/480/202604-039a484af9f5493d9a9d5c051585aa6f.jpg",
       "url": "https://www.nashmimotors.com/inventory/ford/fiesta/r1002/",
-      "carfax": null
+      "carfax": null,
+      "carfaxBadge": null
     },
     {
       "vin": "1FMCU0GD6HUB33923",
@@ -136,7 +143,26 @@
       "img": "202603-de7f64126bdd4473984fc245269cbf86",
       "imgUrl": "https://imagescf.dealercenter.net/640/480/202603-de7f64126bdd4473984fc245269cbf86.jpg",
       "url": "https://www.nashmimotors.com/inventory/ford/escape/a1024/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/nOrh0vlCkocW9BPQ6qfX6w2n8uU1GkQBIH3e92NW_a7sGtXd8TrUWxKFFbZSrinm9VmSslw8PE2mT0BFiqO-JtIbW-tpgcd8R4k"
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/yViQypzw7xJ2pDCIRewLCkOZjFIkm1BgAdnpzrjRXZw8Hj6RaPXMit3XbqBYE6Q4cx5bDIlQfNokRIpo6jAIV-iV4RCFZJAM6vM",
+      "carfaxBadge": "Good Value"
+    },
+    {
+      "vin": "5XYZUDLB1EG228476",
+      "stock": "A1048",
+      "year": 2014,
+      "make": "HYUNDAI",
+      "model": "SANTA FE SPORT",
+      "type": "suv",
+      "price": 7995,
+      "sale": null,
+      "miles": 121046,
+      "drive": "AWD",
+      "fuel": "Gasoline",
+      "img": null,
+      "imgUrl": null,
+      "url": "https://www.nashmimotors.com/inventory/hyundai/santa-fe-sport/a1048/",
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/XMHBTdp_yuao6C3gqthUJHlYGqpILqc1Z3iTwQrhILE1uQf6KyCwAhXgcl-qbBR6G5GDRimNmMB05vqDfan-NsR_qdLUjBefhm8",
+      "carfaxBadge": null
     },
     {
       "vin": "5N1AT2MV1FC890556",
@@ -153,7 +179,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/nissan/rogue/a1040/",
-      "carfax": null
+      "carfax": null,
+      "carfaxBadge": null
     },
     {
       "vin": "1C4RJFCG1EC247856",
@@ -170,7 +197,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/jeep/grand-cherokee/a1039/",
-      "carfax": null
+      "carfax": null,
+      "carfaxBadge": null
     },
     {
       "vin": "1FAHP2E84HG131823",
@@ -187,7 +215,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/ford/taurus/a1044/",
-      "carfax": null
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/uSXbepaltAhSCf-mJmYckGFmH9jvhxjmLK_9-DhYE6YuBKpw6cItJs-aiOkD9nKsfO9t5-zXrbLBRIt4VodmwS91Qnl2LYFnpYs",
+      "carfaxBadge": null
     },
     {
       "vin": "1FMCU9HD0JUB66196",
@@ -204,7 +233,8 @@
       "img": "202603-a20d08755c204b30905a7dbb89efa304",
       "imgUrl": "https://imagescf.dealercenter.net/640/480/202603-a20d08755c204b30905a7dbb89efa304.jpg",
       "url": "https://www.nashmimotors.com/inventory/ford/escape/a1025/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/SEDj8Ek0DyZN1rgYCKGlBtv3lJpIqiU75kjVUP5nJb1ey1KP5Ky2x_GTJ6jqqNI7GEIz8ZzeOvT1Gg9X3ipfafCMG2p0qGk7b2I"
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/MxO99KuXl44Ybsbzqa4JFFbFpmvrQLx9lSTYkaml7UOFO4YOi4KzIth38xPe8bLkFglsJco7lzrbjr5T2_MEe3r_7HaTJ6H3ul4",
+      "carfaxBadge": "Great Value"
     },
     {
       "vin": "2C4RC1BG0HR503978",
@@ -221,7 +251,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/chrysler/pacifica/a1032/",
-      "carfax": null
+      "carfax": null,
+      "carfaxBadge": null
     },
     {
       "vin": "2T1BURHE1GC506793",
@@ -238,7 +269,8 @@
       "img": "202604-31b69fca67994ce3ae2fef2e1efd93df",
       "imgUrl": "https://imagescf.dealercenter.net/640/480/202604-31b69fca67994ce3ae2fef2e1efd93df.jpg",
       "url": "https://www.nashmimotors.com/inventory/toyota/corolla/r1011/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/rlYJaSN70TsYHgheHYnbnicogGzGuNiswfjcvVpH6XRw8UmASN-Edw4uCwP4egdY3aZ9upqZAuGuv7CI6SH_-Yug9qcrm3kDFkw"
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/xjRq3Pp_gCC5PZlFI14nPPfcgvZiz-y-aM-w1jKclp5whdeFTgMrbWBVIB0Tb8GSezJoGL8fi-1jEXdW9VqmCWpshTBx-tOMJCE",
+      "carfaxBadge": "Good Value"
     },
     {
       "vin": "1FTFW1ET7BFC33259",
@@ -255,7 +287,8 @@
       "img": "202604-98d761fdfd6343498219fde07c02beb0",
       "imgUrl": "https://imagescf.dealercenter.net/640/480/202604-98d761fdfd6343498219fde07c02beb0.jpg",
       "url": "https://www.nashmimotors.com/inventory/ford/f150-supercrew-cab/a1035/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/lrJeOmF1ZJWBCTMbn99IAhnOdIMqOHUbxfhcC-FZysrmgeVYY4xI2wXv3kGGyplAYEW-05BfMmI-MyY-TjAzqkCntMoF_rt_MA4"
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/ltBa3gq6oO4v01veF9M-W5quUqN2_BzSQR631FRkXrralfhwtYFIINOg8ThpGMVhmnRuyfDyzbh5hbDWeb1VXBWVmymKryxMFvw",
+      "carfaxBadge": "Good Value"
     },
     {
       "vin": "5N1DL0MM3KC505596",
@@ -272,7 +305,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/infiniti/qx60/a1042/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/TRZr7scIRL8HJoXSngEQL418KSEFqiRw-lJ0W5Egsw1nIqae9nI7NkdTwvGsX0Dzg_wGex96uxu0G_naA5xBRQhRu3vqUNlpoDM"
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/dZWd7K3YkVXntlCZuhzJMIqgXXyVQcsq64h4_AoTVLzYePf7CKyR0q6AF7qkmE4jf_ersjlVtbxhNxT65Y27vgXKImx5n0quwt0",
+      "carfaxBadge": null
     },
     {
       "vin": "1C4RJFBG3EC471289",
@@ -289,7 +323,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/jeep/grand-cherokee/a1043/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/it0aN2TY534kzY7udLVZ6zVIKnaCVAEiFhqjyinieYx6wRNFwCM69wkfXkmZVV8ZGn0U3IcAvMgZrx8PvKHnTpk3-D2eZ3hFrNs"
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/q1dpmoz3qv4zbh9LgCk5xFkwOEu3Q9NNRZsI4JVhyg9X4XHm3KCaAB0EuqxFxSgy6gZQzaO_KS5vXoFSTtAScK1QhQXmYf3R7-M",
+      "carfaxBadge": null
     },
     {
       "vin": "WA1ANAFY6J2019757",
@@ -306,7 +341,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/audi/q5/a1041/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/pLUvCtAn0QsUjU16SNikq7QGDwxhRXFskntD8EMnPO8Z8DPgSalD2xZAOKT9Fzp8RudjXhLT8ZSigl1juVF-86V1iEkG9KsUIS0"
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/RSX4uxiuT3J4Sw8iG9nRt1LEzOjxOCRXcx_ywxc3UZvznxJI5EvkNocwASt3fwpkpUBd7ZWTJeS3wyOH5LxbdjCoq1-uCEwRJcU",
+      "carfaxBadge": null
     },
     {
       "vin": "3VV2B7AX0JM171726",
@@ -323,7 +359,26 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/volkswagen/tiguan/a1047/",
-      "carfax": null
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/9SUVLObpoRbmuWxMfj3K7IYiFaPKkH9__UPNPF6T9yO47sUIAYHhbKz367bHzG4X4DeAKIOxGCKU28oF4rQUiXB5RspB2qCHCig",
+      "carfaxBadge": null
+    },
+    {
+      "vin": "5XXGT4L33LG422253",
+      "stock": "A1014",
+      "year": 2020,
+      "make": "KIA",
+      "model": "OPTIMA",
+      "type": "sedan",
+      "price": 15995,
+      "sale": 13995,
+      "miles": 52350,
+      "drive": "FWD",
+      "fuel": "Gasoline",
+      "img": "202604-4b79213e173641bcb114456c4c6ea9f9",
+      "imgUrl": "https://imagescf.dealercenter.net/640/480/202604-4b79213e173641bcb114456c4c6ea9f9.jpg",
+      "url": "https://www.nashmimotors.com/inventory/kia/optima/a1014/",
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/IR3e2zHsoTDp0wMiEeTLnTNTHmFbnTl-mbU-6FgyOAkOR_AfNxb1RlzdjzhiOsWFIQ_fO0q98o8Rwon1NL2SzI3iPV_8RH1Nxwg",
+      "carfaxBadge": "Fair Value"
     },
     {
       "vin": "KNDJ23AU3P7884308",
@@ -340,24 +395,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/kia/soul/r1001/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/1h-7maQmXn6QVElPezj9A70WSQXoKjQiyZcHDgtgf_C5ypXz8d5Tb-tMWn3YZAgdgbevfzue0R3h8yDxRSyMsyazo3gHkiGpDIU"
-    },
-    {
-      "vin": "5XXGT4L33LG422253",
-      "stock": "A1014",
-      "year": 2020,
-      "make": "KIA",
-      "model": "OPTIMA",
-      "type": "sedan",
-      "price": 15995,
-      "sale": 14995,
-      "miles": 52350,
-      "drive": "FWD",
-      "fuel": "Gasoline",
-      "img": "202604-4b79213e173641bcb114456c4c6ea9f9",
-      "imgUrl": "https://imagescf.dealercenter.net/640/480/202604-4b79213e173641bcb114456c4c6ea9f9.jpg",
-      "url": "https://www.nashmimotors.com/inventory/kia/optima/a1014/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/NQ8F464oaGruFzc_CsMJ7wydQC85bu9OrJsSpsJ5UEzD_zHFdN-PY8ogN7PEXkPN822Tbj7h8yQav2UyaOK6fPkZxVlcV9A8ZHA"
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/eXNj8cJoXyI0EjgBN9EwHDR5UqmDZDO1Mo6MEgufFcXXtmYmO7uyepyVfUQuWeARxo42j-4Jk4Ezrp5jcRu-J5lXV1boEoRiJNc",
+      "carfaxBadge": null
     },
     {
       "vin": "1GTV2MEC9GZ177324",
@@ -374,7 +413,8 @@
       "img": null,
       "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/gmc/sierra-1500-double-cab/a1036/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/GcaICloidDStF_Cno2nqOU8nmuyDE5ZI-2ilRYN5equUA2vpH4DHkMzGGkFZfgxBPAn4P3DDm12H46ICuxzchHfBBWyoy7baOfc"
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/OUQcigwnZiuq-YLW85FDmUNxruA-i0e0gikxveAPdP8PDFkmUIwBjdo9OuvG2adW4bmT755BhvCtFXfsATQ_CeDmXPABHLU4I40",
+      "carfaxBadge": null
     }
   ]
 }

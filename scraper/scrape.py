@@ -253,6 +253,49 @@ def scrape_playwright() -> list[dict]:
         return None, title, ''
 
     seen_vins, vehicles, page_num = set(), [], 1
+    # carfax badge map: vin -> badge text, populated by network response interception
+    cfx_badge_map = {}
+
+    def handle_response(response):
+        """Intercept CarFax API/widget responses to extract value badges."""
+        url_lower = response.url.lower()
+        # CarFax snapshot widget & value indicator API endpoints
+        if 'carfax.com' not in url_lower:
+            return
+        try:
+            if 'snapshot' in url_lower or 'value' in url_lower or 'badge' in url_lower or 'indicator' in url_lower:
+                body = response.text()
+                # Look for JSON with value ratings
+                import json as _json
+                try:
+                    data = _json.loads(body)
+                    # Flatten nested JSON and search for value keys
+                    def find_badges(obj, depth=0):
+                        if depth > 6: return
+                        if isinstance(obj, dict):
+                            vin  = obj.get('vin') or obj.get('VIN') or obj.get('vehicleVin') or ''
+                            val  = (obj.get('value') or obj.get('rating') or obj.get('badge') or
+                                    obj.get('valueIndicator') or obj.get('valueRating') or '')
+                            if vin and val and re.search(r'great|good|fair', str(val), re.I):
+                                badge = 'Great Value' if 'great' in str(val).lower() else \
+                                        'Good Value'  if 'good'  in str(val).lower() else 'Fair Value'
+                                cfx_badge_map[vin.upper()] = badge
+                            for v in obj.values():
+                                find_badges(v, depth+1)
+                        elif isinstance(obj, list):
+                            for item in obj:
+                                find_badges(item, depth+1)
+                    find_badges(data)
+                except Exception:
+                    # Not JSON — search raw text for value patterns near VINs
+                    for m in re.finditer(r'([A-Z0-9]{17}).*?(great value|good value|fair value)', body, re.I):
+                        vin, badge = m.group(1).upper(), m.group(2).title()
+                        cfx_badge_map[vin] = badge
+                    for m in re.finditer(r'(great value|good value|fair value).*?([A-Z0-9]{17})', body, re.I):
+                        badge, vin = m.group(1).title(), m.group(2).upper()
+                        cfx_badge_map[vin] = badge
+        except Exception:
+            pass
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -261,13 +304,14 @@ def scrape_playwright() -> list[dict]:
             user_agent=HEADERS["User-Agent"]
         )
         pg = ctx.new_page()
+        pg.on("response", handle_response)
 
         # Step 1: listing pages
         while True:
             url = SITE_URL if page_num==1 else f"{SITE_URL}?page_no={page_num}"
             print(f"  Scraping listing page {page_num}…", flush=True)
             pg.goto(url, wait_until="networkidle", timeout=60000)
-            pg.wait_for_timeout(3000)
+            pg.wait_for_timeout(5000)
 
             cards = pg.evaluate("""() => {
                 return [...document.querySelectorAll('.vehicle-container')].map(item => {
@@ -280,35 +324,17 @@ def scrape_playwright() -> list[dict]:
                     const milesEl = item.querySelector('[class*="mile"],[class*="odometer"]');
                     const cfEl    = item.querySelector('a[href*="carfax.com"]');
 
-                    // CarFax value badge — DealerCenter renders it as an image with alt text
-                    // or as a text element with class containing "carfax","cfx","value","badge"
+                    // CarFax badge — DealerCenter uses partnerstatic.carfax.com/img/valuebadge/{type}.svg
+                    // Badge filenames: great.svg, good.svg, 1own_good.svg, 1own_fair.svg, fair.svg, etc.
                     let carfaxBadge = null;
-                    // Try image alt text first (most common on DealerCenter)
-                    const cfImgs = [...item.querySelectorAll('img[src*="carfax"],img[alt*="Value"],img[alt*="value"]')];
-                    for (const img of cfImgs) {
-                        const alt = (img.alt || '').trim();
-                        if (/great|good|fair/i.test(alt)) { carfaxBadge = alt; break; }
-                    }
-                    // Try text elements
-                    if (!carfaxBadge) {
-                        const sel = '[class*="carfax"],[class*="cfx"],[class*="value-badge"],[class*="badge"]';
-                        const badgeEls = [...item.querySelectorAll(sel)];
-                        for (const el of badgeEls) {
-                            const txt = el.innerText.trim();
-                            if (/great value|good value|fair value/i.test(txt)) {
-                                carfaxBadge = txt.replace(/\\s+/g,' ').trim();
-                                break;
-                            }
-                        }
-                    }
-                    // Try data attributes
-                    if (!carfaxBadge) {
-                        const dataVals = Object.values(item.dataset || {});
-                        for (const v of dataVals) {
-                            if (/great value|good value|fair value/i.test(v)) {
-                                carfaxBadge = v.trim(); break;
-                            }
-                        }
+                    const cfxBadgeImgs = [...item.querySelectorAll('img[src*="partnerstatic.carfax.com/img/valuebadge/"]')];
+                    for (const img of cfxBadgeImgs) {
+                        const src = img.src || '';
+                        const filename = src.split('/').pop().replace('.svg','').toLowerCase();
+                        if (filename.includes('great'))     { carfaxBadge = 'Great Value'; break; }
+                        if (filename.includes('good'))      { carfaxBadge = 'Good Value';  break; }
+                        if (filename.includes('fair'))      { carfaxBadge = 'Fair Value';  break; }
+                        // showme.svg / 1own.svg = no value rating, skip
                     }
 
                     return {
@@ -340,12 +366,15 @@ def scrape_playwright() -> list[dict]:
                     if img_id: break
                 miles_raw = c.get('miles','').replace(',','')
                 miles = int(miles_raw) if miles_raw.isdigit() else None
-                # Normalise carfax badge text
+                # Normalise carfax badge — from DOM first, then from network intercept map
                 raw_badge = (c.get('carfaxBadge') or '').strip()
                 badge = None
                 if re.search(r'great', raw_badge, re.I):   badge = "Great Value"
                 elif re.search(r'good',  raw_badge, re.I): badge = "Good Value"
                 elif re.search(r'fair',  raw_badge, re.I): badge = "Fair Value"
+                # Fallback: check network-intercepted badge map by VIN
+                if not badge and c.get('vin'):
+                    badge = cfx_badge_map.get((c['vin'] or '').upper())
 
                 vehicles.append({
                     "vin": c.get('vin'), "stock": c.get('stock'),
@@ -362,12 +391,12 @@ def scrape_playwright() -> list[dict]:
             page_num += 1
 
         # Step 2: detail pages for drivetrain/fuel
-        print("\n  Fetching detail pages for drivetrain/fuel…")
+        print("\n  Fetching detail pages for drivetrain/fuel + CarFax badge…")
         for v in vehicles:
             if not v.get('url'): continue
             try:
                 pg.goto(v['url'], wait_until="domcontentloaded", timeout=20000)
-                pg.wait_for_timeout(1500)
+                pg.wait_for_timeout(2500)
                 specs = pg.evaluate("""() => {
                     const rows = [...document.querySelectorAll('[class*="spec"],[class*="detail"],td,li')];
                     return rows.map(r=>r.innerText.trim()).join('\\n');
@@ -379,11 +408,20 @@ def scrape_playwright() -> list[dict]:
                     v['drive'] = 'FWD'
                 fuel = re.search(r'(?i)(electric|hybrid|diesel|gasoline|flex)', specs or '')
                 v['fuel'] = normalize_fuel(fuel.group(1) if fuel else '')
+
+                # carfaxBadge already captured from listing page DOM (partnerstatic.carfax.com SVG filename)
             except Exception as e:
                 print(f"    WARN {v.get('url')}: {e}")
-            print(f"    {v['year']} {v['make']} {v['model']} → {v['drive']} / {v['fuel']}")
+            badge_tag = f" [{v.get('carfaxBadge','no badge')}]" if v.get('carfaxBadge') else ""
+            print(f"    {v['year']} {v['make']} {v['model']} → {v['drive']} / {v['fuel']}{badge_tag}")
 
         browser.close()
+
+    if cfx_badge_map:
+        print(f"\n  CarFax badges captured via network: {cfx_badge_map}")
+    else:
+        print("\n  No CarFax badges captured via network interception.")
+        print("  Badges will appear once CarFax widget API is accessible.")
 
     return vehicles
 
