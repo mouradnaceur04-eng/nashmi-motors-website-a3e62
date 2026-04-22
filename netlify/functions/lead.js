@@ -179,10 +179,14 @@ exports.handler = async (event) => {
     };
   }
 
-  const adfXml  = buildADF(data);
+  const isCarFinder = data['_type'] === 'Car Finder Request';
+  const adfXml  = isCarFinder ? '' : buildADF(data);
   const htmlBody = buildEmailHtml(data, adfXml);
   const name     = `${data['First Name']} ${data['Last Name']}`;
-  const vehicle  = data['Vehicle Interest'] || 'Not specified';
+  const vehicle  = data['Make'] && data['Model']
+    ? `${data['Year'] || ''} ${data['Make']} ${data['Model']}`.trim()
+    : (data['Vehicle Interest'] || 'Not specified');
+  const subjectPrefix = isCarFinder ? '[Car Finder]' : '[Finance Lead]';
 
   // Send via Resend
   try {
@@ -208,7 +212,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         from:    fromAddr,
         to:      toList,
-        subject: `[Finance Lead] ${name} — ${vehicle}`,
+        subject: `${subjectPrefix} ${name} — ${vehicle}`,
         html:    htmlBody,
         // Plain text fallback includes the raw ADF XML so DealerCenter can parse it
         text:    `New finance application from ${name}\nPhone: ${data['Phone']}\nEmail: ${data['Email']}\nVehicle: ${vehicle}\n\nForward ADF XML to: ${LEAD_EMAIL}\n\n${adfXml}`,
