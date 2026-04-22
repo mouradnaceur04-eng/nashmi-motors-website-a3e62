@@ -10,7 +10,7 @@
 <meta name="description" content="Quality used cars in Harrisburg, PA. Starting at $4,995. Easy financing for all credit types. Call (717) 743-5175.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800;900&display=swap">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
@@ -49,65 +49,67 @@
   </div>
 </header>
 
-<!-- HERO — SPLIT LAYOUT -->
-<section class="hero-split">
-  <!-- LEFT PANEL -->
-  <div class="hero-split-left">
-    <div class="hero-split-content animate-fade-up">
-      <div class="hero-eyebrow">Quality Used Cars &bull; Harrisburg, PA</div>
-      <h1 class="hero-split-title">
-        Why Wait?<br>
-        <span class="hero-accent">Get the Keys<br>Now &amp; Save Big.</span>
-      </h1>
-      <p class="hero-split-sub">
-        Carefully selected vehicles starting at $4,995. Financing available for all credit types — good, bad, or none.
-      </p>
-      <div class="hero-split-actions">
-        <a href="inventory.html" class="btn btn-primary btn-lg">Browse Inventory</a>
-        <a href="apply.html" class="btn btn-outline-dark btn-lg">Get Pre-Approved</a>
-      </div>
-      <!-- INLINE SEARCH -->
-      <div class="hero-search">
-        <select id="s-make" onchange="updateModels()" class="hero-select">
-          <option value="">Any Make</option>
-          <option>AUDI</option><option>CHRYSLER</option><option>FORD</option>
-          <option>GMC</option><option>INFINITI</option><option>JEEP</option>
-          <option>KIA</option><option>NISSAN</option><option>TOYOTA</option>
-        </select>
-        <select id="s-model" class="hero-select">
-          <option value="">Any Model</option>
-        </select>
-        <select id="s-price" class="hero-select">
-          <option value="">Any Price</option>
-          <option value="6000">Under $6,000</option>
-          <option value="9000">Under $9,000</option>
-          <option value="12000">Under $12,000</option>
-          <option value="16000">Under $16,000</option>
-        </select>
-        <button class="btn btn-primary" onclick="runSearch()">Search</button>
-      </div>
-    </div>
+<!-- HERO — FULL WIDTH BACKGROUND -->
+<section class="hero-full">
+  <!-- Background car image -->
+  <div class="hero-bg">
+    <img src="https://imagescf.dealercenter.net/640/480/202604-4b79213e173641bcb114456c4c6ea9f9.jpg"
+         alt="" aria-hidden="true" loading="eager">
   </div>
+  <!-- Dark overlay -->
+  <div class="hero-overlay"></div>
 
-  <!-- RIGHT PANEL — angled car image -->
-  <div class="hero-split-right">
-    <div class="hero-split-img">
-      <img src="https://imagescf.dealercenter.net/640/480/202604-4b79213e173641bcb114456c4c6ea9f9.jpg"
-           alt="2020 Kia Optima" loading="eager">
+  <!-- Content -->
+  <div class="container hero-full-content animate-fade-up">
+    <div class="hero-eyebrow hero-eyebrow-light">Quality Used Cars &bull; Harrisburg, PA</div>
+    <h1 class="hero-full-title">
+      Why Wait?<br>
+      <span class="hero-accent-light">Get the Keys Now &amp; Save Big.</span>
+    </h1>
+    <p class="hero-full-sub">
+      Carefully selected vehicles starting at $4,995.<br>Financing available for all credit types — good, bad, or none.
+    </p>
+    <div class="hero-full-actions">
+      <a href="inventory.html" class="btn btn-primary btn-lg">Browse Inventory</a>
+      <a href="apply.html" class="btn btn-outline-white btn-lg">Get Pre-Approved</a>
     </div>
-    <!-- FLOATING STAT CARDS -->
-    <div class="hero-float-cards">
-      <div class="hero-float-card">
-        <span class="hero-float-num">$4,995</span>
-        <span class="hero-float-label">Starting Price</span>
+
+    <!-- INLINE SEARCH -->
+    <div class="hero-search hero-search-dark">
+      <select id="s-make" onchange="updateModels()" class="hero-select hero-select-dark">
+        <option value="">Any Make</option>
+        <option>AUDI</option><option>CHRYSLER</option><option>FORD</option>
+        <option>GMC</option><option>INFINITI</option><option>JEEP</option>
+        <option>KIA</option><option>NISSAN</option><option>TOYOTA</option>
+      </select>
+      <select id="s-model" class="hero-select hero-select-dark">
+        <option value="">Any Model</option>
+      </select>
+      <select id="s-price" class="hero-select hero-select-dark">
+        <option value="">Any Price</option>
+        <option value="6000">Under $6,000</option>
+        <option value="9000">Under $9,000</option>
+        <option value="12000">Under $12,000</option>
+        <option value="16000">Under $16,000</option>
+      </select>
+      <button class="btn btn-primary" onclick="runSearch()">Search</button>
+    </div>
+
+    <!-- STAT CHIPS -->
+    <div class="hero-full-stats">
+      <div class="hero-stat-chip">
+        <span class="hero-stat-num">$4,995</span>
+        <span class="hero-stat-label">Starting Price</span>
       </div>
-      <div class="hero-float-card">
-        <span class="hero-float-num">All</span>
-        <span class="hero-float-label">Credit Types</span>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat-chip">
+        <span class="hero-stat-num">All Credit</span>
+        <span class="hero-stat-label">Types Welcome</span>
       </div>
-      <div class="hero-float-card">
-        <span class="hero-float-num">6 Days</span>
-        <span class="hero-float-label">A Week Open</span>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat-chip">
+        <span class="hero-stat-num">6 Days</span>
+        <span class="hero-stat-label">A Week Open</span>
       </div>
     </div>
   </div>
