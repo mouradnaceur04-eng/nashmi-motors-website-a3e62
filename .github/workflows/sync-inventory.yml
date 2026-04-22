@@ -1,15 +1,15 @@
-name: Sync Inventory
+name: Sync Inventory from DealerCenter
 
 on:
   schedule:
-    # Runs every 6 hours — picks up new cars same day they're added
-    - cron: '0 */6 * * *'
-  workflow_dispatch:
-    # Also lets you trigger it manually from GitHub with one click
+    - cron: '*/5 * * * *'   # Every 5 minutes (GitHub's minimum interval)
+  workflow_dispatch:          # Manual trigger from GitHub Actions UI
 
 jobs:
-  scrape:
+  sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write         # Needed to push the updated inventory.json
 
     steps:
       - name: Checkout repo
@@ -23,20 +23,20 @@ jobs:
       - name: Install dependencies
         run: |
           pip install requests playwright
-          playwright install chromium
-          playwright install-deps chromium
+          python -m playwright install chromium --with-deps
 
-      - name: Run scraper
+      - name: Run inventory scraper
         run: python scraper/scrape.py
 
-      - name: Commit inventory.json if changed
+      - name: Commit and push if inventory changed
         run: |
           git config user.name  "Nashmi Inventory Bot"
           git config user.email "bot@nashmimotors.com"
           git add public/inventory.json
           if git diff --staged --quiet; then
-            echo "No inventory changes — skipping commit"
+            echo "No inventory changes — nothing to commit."
           else
-            git commit -m "🔄 Auto-sync inventory $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git commit -m "sync: auto-update inventory from DealerCenter [skip ci]"
             git push
+            echo "Pushed — Netlify will deploy the update now."
           fi

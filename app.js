@@ -1,19 +1,31 @@
 // Nashmi Motors — app.js
-// Inventory is loaded from /public/inventory.json (auto-synced from nashmimotors.com)
+// Inventory is fetched live from /.netlify/functions/inventory (30-second CDN cache)
+// which proxies the DealerCenter XML feed in real time.
 
 let inventory = [];
 
 async function loadInventory() {
-  try {
-    const res  = await fetch('public/inventory.json');
-    const data = await res.json();
-    inventory  = data.vehicles || [];
-    onInventoryLoaded();
-  } catch (e) {
-    console.warn('Could not fetch inventory.json, using fallback.', e);
-    inventory = FALLBACK_INVENTORY;
-    onInventoryLoaded();
+  // Try live Netlify function first (real-time DealerCenter data, 30s CDN cache)
+  // Fall back to static JSON for local dev where the function isn't running
+  const endpoints = [
+    '/.netlify/functions/inventory',
+    'public/inventory.json',
+  ];
+  for (const url of endpoints) {
+    try {
+      const res  = await fetch(url);
+      if (!res.ok) continue;
+      const data = await res.json();
+      inventory  = data.vehicles || [];
+      if (inventory.length > 0) { onInventoryLoaded(); return; }
+    } catch (e) {
+      // try next endpoint
+    }
   }
+  // Final fallback: hardcoded vehicles
+  console.warn('All inventory endpoints failed, using built-in fallback.');
+  inventory = FALLBACK_INVENTORY;
+  onInventoryLoaded();
 }
 
 // Called once inventory is ready — each page sets this before calling loadInventory()
