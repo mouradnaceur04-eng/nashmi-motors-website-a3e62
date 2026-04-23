@@ -51,10 +51,14 @@ function carCard(c) {
   const saleBadge = c.sale ? `<div class="car-badge">Sale</div>` : '';
   const oldPrice  = c.sale ? `<span class="car-old-price">${fmtPrice(c.price)}</span>` : '';
   const savings   = c.sale ? `<span class="car-savings">Save ${fmtPrice(c.price - c.sale)}</span>` : '';
-  const cfBtn     = c.carfax
-    ? `<a href="${c.carfax}" target="_blank" rel="noopener" class="btn btn-outline-green car-btn-alt" title="View CarFax Report">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        CarFax
+  // "SHOW ME THE CARFAX" badge — shown whenever there's a report URL
+  const isOneOwner = (c.carfaxBadge || '').toLowerCase().includes('1-own') || (c.carfaxBadge || '').toLowerCase().includes('1own');
+  const cfBtn = c.carfax
+    ? `<a href="${c.carfax}" target="_blank" rel="noopener" class="smtc-badge" title="Show Me The CARFAX Report" onclick="event.stopPropagation()">
+        <span class="smtc-top">
+          <span class="smtc-show-me">SHOW ME THE</span>
+          <span class="smtc-logo">C<span>A</span>R<span>F</span>A<span>X</span><sup>®</sup></span>
+        </span>${isOneOwner ? '<span class="smtc-owner">1 OWNER</span>' : ''}
       </a>`
     : '';
 
