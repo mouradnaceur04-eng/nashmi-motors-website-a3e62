@@ -7,3 +7,9 @@
   [headers.values]
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
+
+[[headers]]
+  for = "/inventory.json"
+  [headers.values]
+    Cache-Control = "public, max-age=60, stale-while-revalidate=120"
+    Access-Control-Allow-Origin = "*"
