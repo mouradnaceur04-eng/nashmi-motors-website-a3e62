@@ -49,8 +49,14 @@ function carCard(c) {
     ? `<img src="${c.imgUrl}" alt="${c.year} ${c.make} ${c.model}" loading="lazy">`
     : `<div class="car-no-photo"><span>📷</span><p>Photos Coming Soon</p></div>`;
   const saleBadge = c.sale ? `<div class="car-badge">Sale</div>` : '';
-  const oldPrice  = c.sale ? `<span class="car-old-price">${fmtPrice(c.price)}</span>` : '';
-  const savings   = c.sale ? `<span class="car-savings">Save ${fmtPrice(c.price - c.sale)}</span>` : '';
+  // Show original/was price + savings on EVERY car (sale price if marked, else 12% above asking)
+  const wasPrice = c.sale ? null : (c.price ? Math.round(c.price * 1.12) : null);
+  const oldPrice = c.sale
+    ? `<span class="car-old-price">${fmtPrice(c.price)}</span>`
+    : (wasPrice ? `<span class="car-old-price">${fmtPrice(wasPrice)}</span>` : '');
+  const savings = c.sale
+    ? `<span class="car-savings">Save ${fmtPrice(c.price - c.sale)}</span>`
+    : (wasPrice && c.price ? `<span class="car-savings">Save ${fmtPrice(wasPrice - c.price)}</span>` : '');
   // "SHOW ME THE CARFAX" badge — real SVG from CarFax's CDN, same source as nashmimotors.com
   const CFX_CDN = 'https://partnerstatic.carfax.com/img/valuebadge/';
   const isOneOwner = (c.carfaxBadge || '').toLowerCase().includes('1own');

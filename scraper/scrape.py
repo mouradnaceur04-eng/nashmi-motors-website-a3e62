@@ -126,21 +126,63 @@ def fetch_xml_feed() -> list[dict] | None:
                     return found.text.strip()
         return ""
 
+    def find_photos(el) -> list:
+        """Return ALL image URLs. First tries <photos> container, then numbered tags, then iteration."""
+        photos, seen = [], set()
+        # Numbered tags: photo1, photo2, ... image1, image2, ...
+        for i in range(1, 40):
+            for tag in [f"photo{i}", f"image{i}", f"img{i}", f"photo_{i}", f"image_{i}",
+                        f"Photo{i}", f"Image{i}"]:
+                node = el.find(tag)
+                if node is not None:
+                    url = (node.get("url") or node.get("src") or node.text or "").strip()
+                    if url and url not in seen:
+                        seen.add(url); photos.append(url)
+        if photos:
+            return photos
+        # Container-style <photos><photo url="..."/></photos>
+        for container_tag in ["photos","images","Photos","Images"]:
+            container = el.find(container_tag)
+            if container is not None:
+                for child in container:
+                    url = (child.get("url") or child.get("src") or child.text or "").strip()
+                    if url and url not in seen:
+                        seen.add(url); photos.append(url)
+        if photos:
+            return photos
+        # Fall back: scan all attributes/text for DealerCenter image URLs
+        for node in el.iter():
+            for attr in ["url", "src", "href"]:
+                url = node.get(attr, "")
+                if url and ("imagescf.dealercenter" in url) and url not in seen:
+                    seen.add(url); photos.append(url)
+            if node.text:
+                t2 = node.text.strip()
+                if "imagescf.dealercenter" in t2 and t2 not in seen:
+                    seen.add(t2); photos.append(t2)
+        return photos
+
+    # Keep backward-compat alias used below
     def find_photo(el) -> str:
-        """Return first image URL from common photo tags."""
-        for tag in ["photo","image","img","photo_url","image_url","Photo","Image",
-                    "PhotoURL","ImageURL","photo1","image1"]:
+        return (find_photos(el) or [""])[0]
+
+    def find_features(el) -> list:
+        """Return list of features/options from XML."""
+        for tag in ["features","options","Options","Features","equipment","Equipment",
+                    "OptionList","option_list","Packages","packages"]:
             node = el.find(tag)
             if node is not None:
-                url = (node.get("url") or node.get("src") or node.text or "").strip()
-                if url:
-                    return url
-        # Sometimes photos are nested
-        for node in el.iter():
-            url = node.get("url","")
-            if "imagescf.dealercenter" in url or url.lower().endswith(".jpg"):
-                return url
-        return ""
+                # Could be comma/newline-separated text, or child elements
+                children = list(node)
+                if children:
+                    feats = [c.text.strip() for c in children if c.text and c.text.strip()]
+                    if feats:
+                        return feats
+                if node.text:
+                    items = [f.strip() for f in re.split(r'[,\n|;]', node.text) if f.strip() and len(f.strip()) > 2]
+                    if items:
+                        return items
+        return []
 
     def find_price(el) -> tuple:
         """Return (price, sale_price)."""
@@ -185,8 +227,10 @@ def fetch_xml_feed() -> list[dict] | None:
             year_int = None
 
         price, sale = find_price(el)
-        photo_url   = find_photo(el)
+        all_photos  = find_photos(el)
+        photo_url   = all_photos[0] if all_photos else ""
         img_id      = img_id_from_url(photo_url)
+        features    = find_features(el)
 
         # Build detail URL — use dealer site if feed doesn't include one
         if not url_raw and vin:
@@ -214,9 +258,12 @@ def fetch_xml_feed() -> list[dict] | None:
             "fuel":   normalize_fuel(fuel_raw),
             "img":    img_id,
             "imgUrl": (IMG_BASE + img_id + ".jpg") if img_id else (photo_url or None),
-            "url":        url_raw or None,
-            "carfax":     carfax or None,
+            "photos": [(IMG_BASE + img_id_from_url(p) + ".jpg") if img_id_from_url(p) else p
+                       for p in all_photos if p],
+            "url":         url_raw or None,
+            "carfax":      carfax or None,
             "carfaxBadge": xml_badge,
+            "features":    features,
         })
 
     print(f"  Parsed {len(vehicles)} vehicles from XML feed")
@@ -383,37 +430,83 @@ def scrape_playwright() -> list[dict]:
                     "price": price, "sale": sale, "miles": miles,
                     "drive": "N/A", "fuel": "Gasoline",
                     "img": img_id, "imgUrl": (IMG_BASE+img_id+".jpg") if img_id else None,
+                    "photos": [(IMG_BASE+img_id_from_url(u)+".jpg") if img_id_from_url(u) else u
+                               for u in (c.get('imgs') or []) if u],
                     "url": c.get('url'), "carfax": c.get('carfax'),
                     "carfaxBadge": badge,
+                    "features": [],
                 })
             print(f"    → {new_count} new (total {len(vehicles)})")
             if new_count == 0: break
             page_num += 1
 
-        # Step 2: detail pages for drivetrain/fuel
-        print("\n  Fetching detail pages for drivetrain/fuel + CarFax badge…")
+        # Step 2: detail pages for drivetrain/fuel + all photos + features
+        print("\n  Fetching detail pages for drivetrain/fuel + photos + features…")
         for v in vehicles:
             if not v.get('url'): continue
             try:
                 pg.goto(v['url'], wait_until="domcontentloaded", timeout=20000)
                 pg.wait_for_timeout(2500)
-                specs = pg.evaluate("""() => {
+
+                detail = pg.evaluate("""() => {
+                    // Drivetrain / fuel spec text
                     const rows = [...document.querySelectorAll('[class*="spec"],[class*="detail"],td,li')];
-                    return rows.map(r=>r.innerText.trim()).join('\\n');
+                    const specs = rows.map(r=>r.innerText.trim()).join('\\n');
+
+                    // All gallery photos
+                    const allImgs = [...document.querySelectorAll('img[src*="imagescf.dealercenter"]')]
+                        .map(i => i.src).filter(Boolean);
+                    // De-duplicate preserving order
+                    const seen = new Set(), photos = [];
+                    for (const u of allImgs) { if (!seen.has(u)) { seen.add(u); photos.push(u); } }
+
+                    // Features — look for lists of options/features
+                    const featEls = [...document.querySelectorAll('[class*="feature"],[class*="option"],[class*="equip"]')];
+                    const features = featEls.flatMap(el =>
+                        [...el.querySelectorAll('li,span,p')].map(e => e.innerText.trim())
+                    ).filter(f => f && f.length > 2 && f.length < 60 && !/^\\d+$/.test(f));
+                    // De-dup
+                    const uniqueFeats = [...new Set(features)].slice(0, 30);
+
+                    return { specs, photos, features: uniqueFeats };
                 }""")
+
+                specs = detail.get('specs', '')
                 dt = re.search(r'(?i)(FWD|AWD|4WD|RWD|2WD|All.Wheel|Front.Wheel|Rear.Wheel|Four.Wheel)', specs or '')
-                if dt:
-                    v['drive'] = normalize_drive(dt.group(1))
-                else:
-                    v['drive'] = 'FWD'
+                v['drive'] = normalize_drive(dt.group(1)) if dt else 'FWD'
                 fuel = re.search(r'(?i)(electric|hybrid|diesel|gasoline|flex)', specs or '')
                 v['fuel'] = normalize_fuel(fuel.group(1) if fuel else '')
 
-                # carfaxBadge already captured from listing page DOM (partnerstatic.carfax.com SVG filename)
+                # All photos from gallery (override listing-page single photo)
+                detail_photos = detail.get('photos') or []
+                if detail_photos:
+                    processed = []
+                    seen_ids = set()
+                    for url in detail_photos:
+                        iid = img_id_from_url(url)
+                        if iid and iid not in seen_ids:
+                            seen_ids.add(iid)
+                            processed.append(IMG_BASE + iid + ".jpg")
+                        elif not iid and url not in seen_ids:
+                            seen_ids.add(url)
+                            processed.append(url)
+                    if processed:
+                        v['photos']  = processed
+                        v['imgUrl']  = processed[0]
+                        v['img']     = img_id_from_url(processed[0])
+
+                # Features
+                if detail.get('features'):
+                    v['features'] = detail['features']
+
+                # carfaxBadge already captured from listing page DOM
             except Exception as e:
                 print(f"    WARN {v.get('url')}: {e}")
-            badge_tag = f" [{v.get('carfaxBadge','no badge')}]" if v.get('carfaxBadge') else ""
-            print(f"    {v['year']} {v['make']} {v['model']} → {v['drive']} / {v['fuel']}{badge_tag}")
+
+            photo_count = len(v.get('photos') or [])
+            feat_count  = len(v.get('features') or [])
+            badge_tag   = f" [{v.get('carfaxBadge')}]" if v.get('carfaxBadge') else ""
+            print(f"    {v['year']} {v['make']} {v['model']} → {v['drive']} / {v['fuel']}{badge_tag} | {photo_count} photos | {feat_count} features")
 
         browser.close()
 

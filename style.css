@@ -1811,4 +1811,9 @@ img { max-width: 100%; display: block; }
   .reviews-grid { grid-template-columns: 1fr; }
   .body-types { gap: 10px; }
   .body-type-card { padding: 20px 22px; min-width: 100px; }
+  /* Mobile CarFax badge + actions fixes */
+  .car-actions { flex-wrap: wrap; gap: 8px; }
+  .smtc-badge img { height: 28px; }
+  .cfx-badge-wrap img { height: 28px !important; }
+  .car-actions .btn { font-size: 12px; padding: 9px 12px; }
 }
