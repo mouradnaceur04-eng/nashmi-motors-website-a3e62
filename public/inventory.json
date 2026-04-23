@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-23T20:17:07Z",
+  "updated": "2026-04-23T16:57:18Z",
   "count": 23,
   "vehicles": [
     {
@@ -212,8 +212,8 @@
       "miles": 122073,
       "drive": "FWD",
       "fuel": "Gasoline",
-      "img": "202604-940abb31352d4b608bb8db28b1dd8e2e",
-      "imgUrl": "https://imagescf.dealercenter.net/640/480/202604-940abb31352d4b608bb8db28b1dd8e2e.jpg",
+      "img": null,
+      "imgUrl": null,
       "url": "https://www.nashmimotors.com/inventory/ford/taurus/a1044/",
       "carfax": "https://www.carfax.com/vehiclehistory/ar20/jE9ubD0pRNBqhfQ99-or0RftfLvPhk4b_1INimbIadQF7bhh9hN1p8QyIcgT1Xwjq4g6kcz7hl1hNmOdIRn6EQMe37_Rf5qlTNs",
       "carfaxBadge": null
