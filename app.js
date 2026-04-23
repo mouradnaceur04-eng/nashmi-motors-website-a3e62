@@ -51,28 +51,30 @@ function carCard(c) {
   const saleBadge = c.sale ? `<div class="car-badge">Sale</div>` : '';
   const oldPrice  = c.sale ? `<span class="car-old-price">${fmtPrice(c.price)}</span>` : '';
   const savings   = c.sale ? `<span class="car-savings">Save ${fmtPrice(c.price - c.sale)}</span>` : '';
-  // "SHOW ME THE CARFAX" badge — shown whenever there's a report URL
-  const isOneOwner = (c.carfaxBadge || '').toLowerCase().includes('1-own') || (c.carfaxBadge || '').toLowerCase().includes('1own');
+  // "SHOW ME THE CARFAX" badge — real SVG from CarFax's CDN, same source as nashmimotors.com
+  const CFX_CDN = 'https://partnerstatic.carfax.com/img/valuebadge/';
+  const isOneOwner = (c.carfaxBadge || '').toLowerCase().includes('1own');
+  const smtcSvg  = isOneOwner ? '1own.svg' : 'showme.svg';
   const cfBtn = c.carfax
     ? `<a href="${c.carfax}" target="_blank" rel="noopener" class="smtc-badge" title="Show Me The CARFAX Report" onclick="event.stopPropagation()">
-        <span class="smtc-top">
-          <span class="smtc-show-me">SHOW ME THE</span>
-          <span class="smtc-logo">C<span>A</span>R<span>F</span>A<span>X</span><sup>®</sup></span>
-        </span>${isOneOwner ? '<span class="smtc-owner">1 OWNER</span>' : ''}
+        <img src="${CFX_CDN}${smtcSvg}" alt="Show Me The CARFAX" loading="lazy">
       </a>`
     : '';
 
-  // CarFax value badge — solid clickable button (Great / Good / Fair Value)
+  // CarFax value badge overlay on photo — real SVG from CarFax CDN
   let cfxBadgeHtml = '';
   if (c.carfaxBadge) {
-    const badgeClass = c.carfaxBadge.toLowerCase().includes('great') ? 'cfx-great'
-                     : c.carfaxBadge.toLowerCase().includes('good')  ? 'cfx-good'
-                     : 'cfx-fair';
-    const inner = `<span class="cfx-label">CARFAX</span><span class="cfx-value">${c.carfaxBadge}</span>`;
-    // Use onclick on a div — cannot nest <a> inside <a> (car-img-wrap is already an <a>)
+    const badge = c.carfaxBadge.toLowerCase();
+    const svg = badge.includes('1own') && badge.includes('great') ? '1own_great.svg'
+              : badge.includes('1own') && badge.includes('good')  ? '1own_good.svg'
+              : badge.includes('1own') && badge.includes('fair')  ? '1own_fair.svg'
+              : badge.includes('great') ? 'great.svg'
+              : badge.includes('good')  ? 'good.svg'
+              : 'fair.svg';
+    const imgTag = `<img src="${CFX_CDN}${svg}" alt="${c.carfaxBadge}" loading="lazy" style="height:36px;display:block">`;
     cfxBadgeHtml = c.carfax
-      ? `<div class="cfx-badge ${badgeClass}" onclick="event.preventDefault();event.stopPropagation();window.open('${c.carfax}','_blank')" title="View CarFax Report" role="link" tabindex="0">${inner}</div>`
-      : `<div class="cfx-badge ${badgeClass}">${inner}</div>`;
+      ? `<div class="cfx-badge-wrap" onclick="event.preventDefault();event.stopPropagation();window.open('${c.carfax}','_blank')" role="link" tabindex="0" title="${c.carfaxBadge}">${imgTag}</div>`
+      : `<div class="cfx-badge-wrap">${imgTag}</div>`;
   }
 
   return `

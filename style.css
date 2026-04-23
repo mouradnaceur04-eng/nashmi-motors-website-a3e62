@@ -765,59 +765,29 @@ img { max-width: 100%; display: block; }
 .cfx-good  .cfx-value { background: #2563eb; }
 .cfx-fair  .cfx-value { background: #ea580c; }
 
-/* ── SHOW ME THE CARFAX badge ─────────────────────────────────────────────── */
+/* ── SHOW ME THE CARFAX badge (real SVG from CarFax CDN) ─────────────────── */
 .smtc-badge {
   display: inline-flex;
-  flex-direction: column;
-  border-radius: 4px;
-  overflow: hidden;
-  text-decoration: none;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.28);
+  align-items: center;
   flex-shrink: 0;
-  transition: transform 0.15s, box-shadow 0.15s;
+  text-decoration: none;
+  transition: transform 0.15s, opacity 0.15s;
   cursor: pointer;
-  line-height: 1;
 }
-.smtc-badge:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.35); }
-.smtc-top {
-  background: #1a1a1a;
-  padding: 5px 9px 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-.smtc-show-me {
-  font-family: Arial, sans-serif;
-  font-size: 7.5px;
-  font-weight: 600;
-  color: #cccccc;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-}
-.smtc-logo {
-  font-family: Arial Black, Arial, sans-serif;
-  font-size: 15px;
-  font-weight: 900;
-  color: #ffffff;
-  letter-spacing: -0.5px;
-  line-height: 1.1;
-}
-.smtc-logo span { color: #ffffff; }
-.smtc-logo sup { font-size: 7px; font-weight: 400; vertical-align: super; margin-left: 1px; }
-.smtc-owner {
-  background: #003399;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  font-size: 8.5px;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  text-align: center;
-  padding: 3px 0;
-}
+.smtc-badge img { height: 34px; display: block; }
+.smtc-badge:hover { transform: translateY(-1px); opacity: 0.9; }
 
-/* In the car actions row */
-.car-actions .smtc-badge { align-self: center; }
+/* Value badge overlay on car photo (real SVG) */
+.cfx-badge-wrap {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 2;
+  cursor: pointer;
+  transition: transform 0.15s;
+  line-height: 0;
+}
+.cfx-badge-wrap:hover { transform: translateY(-1px); }
 
 .car-save {
   position: absolute;
