@@ -1,5 +1,5 @@
 {
-  "updated": "2026-04-23T16:57:20Z",
+  "updated": "2026-04-23T20:17:07Z",
   "count": 23,
   "vehicles": [
     {
@@ -212,8 +212,8 @@
       "miles": 122073,
       "drive": "FWD",
       "fuel": "Gasoline",
-      "img": null,
-      "imgUrl": null,
+      "img": "202604-940abb31352d4b608bb8db28b1dd8e2e",
+      "imgUrl": "https://imagescf.dealercenter.net/640/480/202604-940abb31352d4b608bb8db28b1dd8e2e.jpg",
       "url": "https://www.nashmimotors.com/inventory/ford/taurus/a1044/",
       "carfax": "https://www.carfax.com/vehiclehistory/ar20/jE9ubD0pRNBqhfQ99-or0RftfLvPhk4b_1INimbIadQF7bhh9hN1p8QyIcgT1Xwjq4g6kcz7hl1hNmOdIRn6EQMe37_Rf5qlTNs",
       "carfaxBadge": null
@@ -363,24 +363,6 @@
       "carfaxBadge": null
     },
     {
-      "vin": "5XXGT4L33LG422253",
-      "stock": "A1014",
-      "year": 2020,
-      "make": "KIA",
-      "model": "OPTIMA",
-      "type": "sedan",
-      "price": 15995,
-      "sale": 13995,
-      "miles": 52350,
-      "drive": "FWD",
-      "fuel": "Gasoline",
-      "img": "202604-4b79213e173641bcb114456c4c6ea9f9",
-      "imgUrl": "https://imagescf.dealercenter.net/640/480/202604-4b79213e173641bcb114456c4c6ea9f9.jpg",
-      "url": "https://www.nashmimotors.com/inventory/kia/optima/a1014/",
-      "carfax": "https://www.carfax.com/vehiclehistory/ar20/Pmk-w8eixKHeBOXFuVwJDEWCgPaCiLPN_q1B_7yaI4nOPsOkfTWN_Nodqtlr2SqzOFgBZqFKP_tdZIQC_7xxzO-kI_spTQhKrAo",
-      "carfaxBadge": "Fair Value"
-    },
-    {
       "vin": "KNDJ23AU3P7884308",
       "stock": "R1001",
       "year": 2023,
@@ -397,6 +379,24 @@
       "url": "https://www.nashmimotors.com/inventory/kia/soul/r1001/",
       "carfax": "https://www.carfax.com/vehiclehistory/ar20/RXrro8ZXElH3y0fE1_GxKEIITxLyZ3nXn-kZYWwtwOhwQrYYl8adtUgPmwDWACqBmmnxV8SoqYoVajkOgBY0FdIHVi65FuMhXz0",
       "carfaxBadge": null
+    },
+    {
+      "vin": "5XXGT4L33LG422253",
+      "stock": "A1014",
+      "year": 2020,
+      "make": "KIA",
+      "model": "OPTIMA",
+      "type": "sedan",
+      "price": 15995,
+      "sale": 13995,
+      "miles": 52350,
+      "drive": "FWD",
+      "fuel": "Gasoline",
+      "img": "202604-4b79213e173641bcb114456c4c6ea9f9",
+      "imgUrl": "https://imagescf.dealercenter.net/640/480/202604-4b79213e173641bcb114456c4c6ea9f9.jpg",
+      "url": "https://www.nashmimotors.com/inventory/kia/optima/a1014/",
+      "carfax": "https://www.carfax.com/vehiclehistory/ar20/Pmk-w8eixKHeBOXFuVwJDEWCgPaCiLPN_q1B_7yaI4nOPsOkfTWN_Nodqtlr2SqzOFgBZqFKP_tdZIQC_7xxzO-kI_spTQhKrAo",
+      "carfaxBadge": "Fair Value"
     },
     {
       "vin": "1GTV2MEC9GZ177324",
