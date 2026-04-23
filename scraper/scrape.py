@@ -271,6 +271,87 @@ def fetch_xml_feed() -> list[dict] | None:
 
 
 # ─────────────────────────────────────────────
+# METHOD 1b: Playwright photo enrichment
+# Runs AFTER the XML feed step.
+# Visits each vehicle's nashmimotors.com detail page to grab the full
+# photo gallery (XML only provides 1 photo; the DealerCenter-hosted site
+# shows them all).
+# ─────────────────────────────────────────────
+
+def enrich_photos_playwright(vehicles: list) -> None:
+    """
+    Visit each vehicle's nashmimotors.com page via Playwright and
+    collect all gallery images. Only fetches pages where photos are missing
+    or only 1 photo was found (saves time on subsequent runs).
+    """
+    needs = [v for v in vehicles if len(v.get('photos') or []) <= 1 and v.get('url')]
+    if not needs:
+        print("  All vehicles already have multiple photos — skipping enrichment.")
+        return
+
+    print(f"\n  Photo enrichment: visiting {len(needs)} detail pages via Playwright…")
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        print("  playwright not installed — skipping photo enrichment")
+        return
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        ctx = browser.new_context(
+            viewport={"width": 1440, "height": 900},
+            user_agent=HEADERS["User-Agent"],
+        )
+        pg = ctx.new_page()
+
+        for v in needs:
+            try:
+                pg.goto(v['url'], wait_until="domcontentloaded", timeout=25000)
+                pg.wait_for_timeout(2500)
+
+                raw_photos = pg.evaluate("""() => {
+                    // Main gallery images — DealerCenter uses imagescf.dealercenter.net
+                    const imgs = [
+                        ...document.querySelectorAll('img[src*="imagescf.dealercenter"]'),
+                        ...document.querySelectorAll('img[data-src*="imagescf.dealercenter"]'),
+                    ].map(i => i.src || i.dataset.src || '').filter(Boolean);
+
+                    // De-duplicate by image ID (strip size prefix to avoid dupes across sizes)
+                    const seen = new Set(), result = [];
+                    for (const u of imgs) {
+                        const key = u.split('?')[0].split('/').slice(-1)[0]; // filename part
+                        if (key && !seen.has(key)) { seen.add(key); result.push(u); }
+                    }
+                    return result;
+                }""")
+
+                if raw_photos:
+                    processed, seen_ids = [], set()
+                    for url in raw_photos:
+                        iid = img_id_from_url(url)
+                        if iid and iid not in seen_ids:
+                            seen_ids.add(iid)
+                            processed.append(IMG_BASE + iid + ".jpg")
+                        elif not iid and url not in seen_ids:
+                            seen_ids.add(url)
+                            processed.append(url)
+                    if processed:
+                        v['photos'] = processed
+                        v['imgUrl']  = processed[0]
+                        v['img']     = img_id_from_url(processed[0])
+                        print(f"    ✅ {v['year']} {v['make']} {v['model']}: {len(processed)} photos")
+                    else:
+                        print(f"    ⚠  {v['year']} {v['make']} {v['model']}: parsed 0 usable photos")
+                else:
+                    print(f"    ⚠  {v['year']} {v['make']} {v['model']}: no photos found on page")
+
+            except Exception as e:
+                print(f"    ERROR {v.get('url')}: {e}")
+
+        browser.close()
+
+
+# ─────────────────────────────────────────────
 # METHOD 2: Playwright fallback
 # ─────────────────────────────────────────────
 
@@ -530,8 +611,11 @@ def main():
     print("Step 1: Trying XML feed…")
     vehicles = fetch_xml_feed()
 
-    if not vehicles:
-        print("\nStep 1 failed. Step 2: Playwright DOM scraper…")
+    if vehicles:
+        print("\nStep 1b: Enriching photos via Playwright (visits nashmimotors.com detail pages)…")
+        enrich_photos_playwright(vehicles)
+    else:
+        print("\nStep 1 failed. Step 2: Full Playwright DOM scraper…")
         vehicles = scrape_playwright()
 
     if not vehicles:

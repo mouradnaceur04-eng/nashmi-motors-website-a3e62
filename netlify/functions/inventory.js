@@ -138,6 +138,28 @@ function parseXML(xml) {
   }).filter(v => v.year && v.make && v.model && v.price);
 }
 
+// ── Load static inventory for photo + badge cache ───────────────────────────
+// The scraper runs Playwright to grab all gallery photos from nashmimotors.com
+// and stores them in public/inventory.json. We merge them into the live feed
+// so the XML (which only gives 1 photo) gets enriched with the full gallery.
+function buildStaticCache() {
+  try {
+    const data = JSON.parse(fs.readFileSync(STATIC_FB, 'utf8'));
+    const cache = {};
+    for (const v of (data.vehicles || [])) {
+      if (v.vin) cache[v.vin] = {
+        photos:      v.photos      || (v.imgUrl ? [v.imgUrl] : []),
+        carfax:      v.carfax      || null,
+        carfaxBadge: v.carfaxBadge || null,
+        features:    v.features    || [],
+      };
+    }
+    return cache;
+  } catch (e) {
+    return {};
+  }
+}
+
 // ── Handler ──────────────────────────────────────────────────────────────────
 exports.handler = async () => {
   const corsHeaders = {
@@ -147,6 +169,9 @@ exports.handler = async () => {
     // CDN caches 30s, serves stale up to 60s while refreshing in background
     'Cache-Control': 'public, max-age=30, stale-while-revalidate=60',
   };
+
+  // Build photo/badge cache from static file (always, even when live feed works)
+  const staticCache = buildStaticCache();
 
   let source = 'live-feed';
   let vehicles = [];
@@ -159,10 +184,37 @@ exports.handler = async () => {
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const xml = await res.text();
-    vehicles = parseXML(xml);
-    if (vehicles.length === 0) throw new Error('XML parsed but 0 vehicles');
+    const parsed = parseXML(xml);
+    if (parsed.length === 0) throw new Error('XML parsed but 0 vehicles');
+
+    // Merge static photo cache into live vehicles + fix schema to match app.js
+    vehicles = parsed.map(v => {
+      const cached = staticCache[v.vin] || {};
+      // app.js expects: price=original, sale=discounted_number_or_null
+      const originalPrice = v.wasPrice || v.price || null;
+      const salePrice     = (v.sale === true && v.salePrice) ? v.salePrice : null;
+      return {
+        vin:         v.vin,
+        year:        parseInt(v.year,  10) || null,
+        make:        (v.make  || '').toUpperCase(),
+        model:       (v.model || '').toUpperCase(),
+        type:        v.bodyType || 'suv',
+        price:       originalPrice,
+        sale:        salePrice,
+        miles:       v.miles,
+        drive:       v.drive,
+        fuel:        v.fuel,
+        img:         null,
+        imgUrl:      (cached.photos && cached.photos[0]) || v.img || null,
+        photos:      cached.photos  && cached.photos.length > 0 ? cached.photos : (v.photos || []),
+        carfax:      cached.carfax      || v.carfax      || null,
+        carfaxBadge: cached.carfaxBadge || v.carfaxBadge || null,
+        features:    cached.features    || [],
+        url:         null,
+      };
+    });
   } catch (liveErr) {
-    // ── Fallback: static inventory.json ──
+    // ── Fallback: static inventory.json (has all photos already) ──
     console.log('Live feed failed, using static fallback:', liveErr.message);
     source = 'static-fallback';
     try {
