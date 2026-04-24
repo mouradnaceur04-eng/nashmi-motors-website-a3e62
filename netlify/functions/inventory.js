@@ -7,12 +7,11 @@
  * Fallback: if the XML feed is unreachable, serves the static public/inventory.json.
  */
 
-const fs   = require('fs');
-const path = require('path');
-
-const FEED_URL  = 'https://feeds.dealercenter.net/inventory/29008363/feed.xml';
-const IMG_BASE  = 'https://imagescf.dealercenter.net/640/480/';
-const STATIC_FB = path.join(__dirname, '../../public/inventory.json');
+const FEED_URL      = 'https://feeds.dealercenter.net/inventory/29008363/feed.xml';
+const IMG_BASE      = 'https://imagescf.dealercenter.net/640/480/';
+// publish = "." so public/inventory.json is served at /public/inventory.json
+const SITE_URL      = process.env.URL || 'https://melodious-shortbread-85885e.netlify.app';
+const STATIC_FB_URL = `${SITE_URL}/public/inventory.json`;
 
 // ── Body type detection ──────────────────────────────────────────────────────
 const BODY_MAP = {
@@ -80,7 +79,6 @@ function normFuel(s) {
 
 // ── Parse DealerCenter XML ───────────────────────────────────────────────────
 function parseXML(xml) {
-  // Split on <vehicle> elements
   const vehicleRx = /<vehicle[\s\S]*?<\/vehicle>/gi;
   const blocks = xml.match(vehicleRx) || [];
 
@@ -98,53 +96,53 @@ function parseXML(xml) {
     const color  = tag(b, 'exterior_color') || tag(b, 'color') || tag(b, 'extcolor');
     const engine = tag(b, 'engine') || tag(b, 'enginedescription');
 
-    // Photos: look for photo/image tags, grab all URLs
     const photos = [];
     const photoTags = allTags(b, 'photo').concat(allTags(b, 'image'), allTags(b, 'photo_url'));
     for (const p of photoTags) {
       const url = p.startsWith('http') ? p : (p ? IMG_BASE + p : '');
       if (url && !photos.includes(url)) photos.push(url);
     }
-    // Also check for URL attributes in tags
     const attrRx = /(?:url|src)="(https?:\/\/[^"]+\.jpg[^"]*)"/gi;
     let am;
     while ((am = attrRx.exec(b)) !== null) {
       if (!photos.includes(am[1])) photos.push(am[1]);
     }
 
-    const img = photos[0] || null;
-
-    // CarFax — DealerCenter XML sometimes includes the report URL
+    const img    = photos[0] || null;
     const cfxUrl = tag(b, 'carfax_url') || tag(b, 'carfax') || '';
 
-    const isSale = sale && sale < price;
+    const isSale      = sale && sale < price;
     const displayPrice = isSale ? sale : price;
 
     return {
       year, make, model, trim, vin,
       miles,
       price:    displayPrice,
-      salePrice: isSale ? sale   : null,
-      wasPrice:  isSale ? price  : null,
+      salePrice: isSale ? sale  : null,
+      wasPrice:  isSale ? price : null,
       sale:      isSale,
       drive, fuel, color, engine,
       img,
       photos: photos.slice(0, 8),
       carfax:      cfxUrl || null,
-      carfaxBadge: null,   // badge only available via DOM scraper
+      carfaxBadge: null,
       bodyType:    bodyType(model),
       id: vin || `${year}-${make}-${model}`.replace(/\s+/g, '-').toLowerCase(),
     };
   }).filter(v => v.year && v.make && v.model && v.price);
 }
 
-// ── Load static inventory for photo + badge cache ───────────────────────────
-// The scraper runs Playwright to grab all gallery photos from nashmimotors.com
-// and stores them in public/inventory.json. We merge them into the live feed
-// so the XML (which only gives 1 photo) gets enriched with the full gallery.
-function buildStaticCache() {
+// ── Load static inventory for photo + badge cache via HTTP ───────────────────
+async function buildStaticCache() {
   try {
-    const data = JSON.parse(fs.readFileSync(STATIC_FB, 'utf8'));
+    const res = await fetch(STATIC_FB_URL, {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) {
+      console.log('Static cache HTTP error:', res.status);
+      return {};
+    }
+    const data = await res.json();
     const cache = {};
     for (const v of (data.vehicles || [])) {
       if (v.vin) cache[v.vin] = {
@@ -154,8 +152,10 @@ function buildStaticCache() {
         features:    v.features    || [],
       };
     }
+    console.log(`Static cache loaded: ${Object.keys(cache).length} vehicles`);
     return cache;
   } catch (e) {
+    console.log('Static cache unavailable:', e.message);
     return {};
   }
 }
@@ -166,12 +166,11 @@ exports.handler = async () => {
     'Access-Control-Allow-Origin':  '*',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Content-Type': 'application/json',
-    // CDN caches 30s, serves stale up to 60s while refreshing in background
     'Cache-Control': 'public, max-age=30, stale-while-revalidate=60',
   };
 
-  // Build photo/badge cache from static file (always, even when live feed works)
-  const staticCache = buildStaticCache();
+  // Build photo/badge cache from static file
+  const staticCache = await buildStaticCache();
 
   let source = 'live-feed';
   let vehicles = [];
@@ -187,15 +186,15 @@ exports.handler = async () => {
     const parsed = parseXML(xml);
     if (parsed.length === 0) throw new Error('XML parsed but 0 vehicles');
 
-    // Merge static photo cache into live vehicles + fix schema to match app.js
+    // Merge static photo cache into live vehicles
     vehicles = parsed.map(v => {
       const cached = staticCache[v.vin] || {};
-      // app.js expects: price=original, sale=discounted_number_or_null
+      // app.js expects: price = original price, sale = discounted number or null
       const originalPrice = v.wasPrice || v.price || null;
       const salePrice     = (v.sale === true && v.salePrice) ? v.salePrice : null;
       return {
         vin:         v.vin,
-        year:        parseInt(v.year,  10) || null,
+        year:        parseInt(v.year, 10) || null,
         make:        (v.make  || '').toUpperCase(),
         model:       (v.model || '').toUpperCase(),
         type:        v.bodyType || 'suv',
@@ -206,7 +205,7 @@ exports.handler = async () => {
         fuel:        v.fuel,
         img:         null,
         imgUrl:      (cached.photos && cached.photos[0]) || v.img || null,
-        photos:      cached.photos  && cached.photos.length > 0 ? cached.photos : (v.photos || []),
+        photos:      (cached.photos && cached.photos.length > 0) ? cached.photos : (v.photos || []),
         carfax:      cached.carfax      || v.carfax      || null,
         carfaxBadge: cached.carfaxBadge || v.carfaxBadge || null,
         features:    cached.features    || [],
@@ -214,11 +213,14 @@ exports.handler = async () => {
       };
     });
   } catch (liveErr) {
-    // ── Fallback: static inventory.json (has all photos already) ──
+    // ── Fallback: static inventory.json ──
     console.log('Live feed failed, using static fallback:', liveErr.message);
     source = 'static-fallback';
     try {
-      vehicles = JSON.parse(fs.readFileSync(STATIC_FB, 'utf8')).vehicles || [];
+      const res = await fetch(STATIC_FB_URL, { signal: AbortSignal.timeout(5000) });
+      if (!res.ok) throw new Error(`Static fetch HTTP ${res.status}`);
+      const data = await res.json();
+      vehicles = data.vehicles || [];
     } catch (fbErr) {
       console.error('Static fallback also failed:', fbErr.message);
       return {
