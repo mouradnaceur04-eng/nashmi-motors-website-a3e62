@@ -97,12 +97,21 @@ function parseXML(xml) {
     const engine = tag(b, 'engine') || tag(b, 'enginedescription');
 
     const photos = [];
-    const photoTags = allTags(b, 'photo').concat(allTags(b, 'image'), allTags(b, 'photo_url'));
-    for (const p of photoTags) {
-      const url = p.startsWith('http') ? p : (p ? IMG_BASE + p : '');
+    function addPhoto(p) {
+      if (!p) return;
+      const url = p.startsWith('http') ? p : IMG_BASE + p;
       if (url && !photos.includes(url)) photos.push(url);
     }
-    const attrRx = /(?:url|src)="(https?:\/\/[^"]+\.jpg[^"]*)"/gi;
+
+    // Numbered tags: photo1..photo30, image1..image30 (DealerCenter standard format)
+    for (let n = 1; n <= 30; n++) {
+      addPhoto(tag(b, `photo${n}`));
+      addPhoto(tag(b, `image${n}`));
+    }
+    // Generic multi-value photo/image tags
+    allTags(b, 'photo').concat(allTags(b, 'image'), allTags(b, 'photo_url')).forEach(addPhoto);
+    // URL attributes in any tag
+    const attrRx = /(?:url|src|href)="(https?:\/\/imagescf\.dealercenter\.net\/[^"]+)"/gi;
     let am;
     while ((am = attrRx.exec(b)) !== null) {
       if (!photos.includes(am[1])) photos.push(am[1]);
@@ -123,7 +132,7 @@ function parseXML(xml) {
       sale:      isSale,
       drive, fuel, color, engine,
       img,
-      photos: photos.slice(0, 8),
+      photos: photos.slice(0, 20),
       carfax:      cfxUrl || null,
       carfaxBadge: null,
       bodyType:    bodyType(model),
@@ -204,8 +213,9 @@ exports.handler = async () => {
         drive:       v.drive,
         fuel:        v.fuel,
         img:         null,
-        imgUrl:      (cached.photos && cached.photos[0]) || v.img || null,
-        photos:      (cached.photos && cached.photos.length > 0) ? cached.photos : (v.photos || []),
+        // XML photos are per-VIN and authoritative; scraped cache fills in when XML has none
+        imgUrl:      v.photos.length > 0 ? v.photos[0] : ((cached.photos && cached.photos[0]) || v.img || null),
+        photos:      v.photos.length > 0 ? v.photos : (cached.photos && cached.photos.length > 0 ? cached.photos : []),
         carfax:      cached.carfax      || v.carfax      || null,
         carfaxBadge: cached.carfaxBadge || v.carfaxBadge || null,
         features:    cached.features    || [],

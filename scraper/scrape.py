@@ -310,16 +310,23 @@ def enrich_photos_playwright(vehicles: list) -> None:
                 pg.wait_for_timeout(2500)
 
                 raw_photos = pg.evaluate("""() => {
-                    // Main gallery images — DealerCenter uses imagescf.dealercenter.net
-                    const imgs = [
-                        ...document.querySelectorAll('img[src*="imagescf.dealercenter"]'),
-                        ...document.querySelectorAll('img[data-src*="imagescf.dealercenter"]'),
-                    ].map(i => i.src || i.dataset.src || '').filter(Boolean);
+                    // Only grab main gallery images (640/480), not sidebar/related-vehicle thumbs (90/90)
+                    // DealerCenter wraps the vehicle gallery in .dws-vehicle-media-wrapper
+                    const galleryEl = document.querySelector(
+                        '.dws-vehicle-media-wrapper, .vehicle-gallery, .carousel, #vehicle-photos, [class*="vehicle-media"]'
+                    );
 
-                    // De-duplicate by image ID (strip size prefix to avoid dupes across sizes)
+                    // Prefer photos inside the gallery container; fall back to all 640/480 on page
+                    const srcQuery = 'img[src*="/640/480/"], [data-src*="/640/480/"]';
+                    const scope = galleryEl || document;
+                    const imgs = [
+                        ...scope.querySelectorAll(srcQuery),
+                    ].map(i => (i.src || i.getAttribute('data-src') || '').trim()).filter(u => u && u.includes('imagescf.dealercenter'));
+
+                    // De-duplicate by filename hash
                     const seen = new Set(), result = [];
                     for (const u of imgs) {
-                        const key = u.split('?')[0].split('/').slice(-1)[0]; // filename part
+                        const key = u.split('/').pop().split('?')[0];
                         if (key && !seen.has(key)) { seen.add(key); result.push(u); }
                     }
                     return result;
